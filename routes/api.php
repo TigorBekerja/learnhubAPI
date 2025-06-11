@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\KumpulanCertificateController;
 use App\Http\Controllers\Api\TutorController;
 use App\Http\Controllers\Api\TutorCourseController;
 use Illuminate\Http\Request;
@@ -37,3 +39,9 @@ Route::post('/tutor', [TutorController::class, 'store']);
 
 Route::get('/tutorCourse', [TutorCourseController::class, 'index']);
 Route::post('/tutorCourse', [TutorCourseController::class, 'store']);
+
+Route::get('/certificate', [CertificateController::class, 'index']);
+Route::post('/certificate', [CertificateController::class, 'store']);
+
+Route::get('/kumpulanCertificate', [KumpulanCertificateController::class, 'index']);
+Route::post('/kumpulanCertificate', [KumpulanCertificateController::class, 'store']);

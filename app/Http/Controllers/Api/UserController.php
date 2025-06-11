@@ -35,6 +35,8 @@ class UserController extends Controller
             'bio' => 'nullable|string',
             'prodi_id' => 'nullable|string'
         ]);
+
+        // cek prodi id
         $prodiId = $validated['prodi_id'] ?? null;
         if ($prodiId != null) {
             $prodiList = $this->prodiService->getAllDocuments(); // asumsikan dari koleksi 'prodi'
