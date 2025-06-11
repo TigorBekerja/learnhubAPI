@@ -1,0 +1,39 @@
+<?php
+
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\TutorController;
+use App\Http\Controllers\Api\TutorCourseController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+use App\Http\Controllers\Api\UserController;
+
+
+
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+
+use App\Http\Controllers\Api\FacultyController;
+Route::get('/faculties', [FacultyController::class, 'index']);
+Route::post('/faculties', [FacultyController::class, 'store']);
+
+use App\Http\Controllers\Api\ProdiController;
+
+Route::post('/prodis', [ProdiController::class, 'store']);
+Route::get('/prodis', [ProdiController::class, 'index']);
+
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/register', [UserController::class, 'register']);
+
+Route::post('/course', [CourseController::class, 'store']);
+Route::get('/course', [CourseController::class, 'index']);
+
+Route::get('/tutor', [TutorController::class, 'index']);
+Route::post('/tutor', [TutorController::class, 'store']);
+
+Route::get('/tutorCourse', [TutorCourseController::class, 'index']);
+Route::post('/tutorCourse', [TutorCourseController::class, 'store']);
