@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\AnswerForumController;
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\CourseTakenController;
+use App\Http\Controllers\Api\ForumController;
 use App\Http\Controllers\Api\KumpulanCertificateController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\TutorController;
 use App\Http\Controllers\Api\TutorCourseController;
 use Illuminate\Http\Request;
@@ -49,3 +53,15 @@ Route::post('/kumpulanCertificate', [KumpulanCertificateController::class, 'stor
 
 Route::get('/review', [ReviewController::class, 'index']);
 Route::post('/review', [ReviewController::class, 'store']);
+
+Route::get('/forum', [ForumController::class, 'index']);
+Route::post('/forum', [ForumController::class, 'store']);
+
+Route::get('/answerForum', [AnswerForumController::class, 'index']);
+Route::post('/answerForum', [AnswerForumController::class, 'store']);
+
+Route::get('/courseTaken', [CourseTakenController::class, 'index']);
+Route::post('/courseTaken', [CourseTakenController::class, 'store']);
+
+Route::get('/schedule', [ScheduleController::class, 'index']);
+Route::post('/schedule', [ScheduleController::class, 'store']);

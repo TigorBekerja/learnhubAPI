@@ -25,7 +25,7 @@ class ProdiController extends Controller
         ]);
 
         // validasi faculty_id
-        $facultyList = $this->facultyService->getAllDocuments(); // asumsikan dari koleksi 'prodi'
+        $facultyList = $this->facultyService->getAllDocuments(); 
 
         $isFacultyIdValid = collect($facultyList)->contains(function ($item) use ($data) {
             return isset($item['faculty_id']) && $item['faculty_id'] === $data['faculty_id'];
