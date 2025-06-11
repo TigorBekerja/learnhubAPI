@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\KumpulanCertificateController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\TutorController;
 use App\Http\Controllers\Api\TutorCourseController;
 use Illuminate\Http\Request;
@@ -45,3 +46,6 @@ Route::post('/certificate', [CertificateController::class, 'store']);
 
 Route::get('/kumpulanCertificate', [KumpulanCertificateController::class, 'index']);
 Route::post('/kumpulanCertificate', [KumpulanCertificateController::class, 'store']);
+
+Route::get('/review', [ReviewController::class, 'index']);
+Route::post('/review', [ReviewController::class, 'store']);
