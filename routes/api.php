@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AnswerForumController;
 use App\Http\Controllers\Api\CertificateController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CourseTakenController;
 use App\Http\Controllers\Api\ForumController;
@@ -65,3 +66,6 @@ Route::post('/courseTaken', [CourseTakenController::class, 'store']);
 
 Route::get('/schedule', [ScheduleController::class, 'index']);
 Route::post('/schedule', [ScheduleController::class, 'store']);
+
+Route::get('/chat', [ChatController::class, 'index']);
+Route::post('/chat', [ChatController::class, 'store']);
