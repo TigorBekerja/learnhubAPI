@@ -23,8 +23,8 @@ class ReviewController extends Controller
         $data = $request->validate([
             'user_id' => 'required|string',
             'tutor_id' => 'required|string',
-            'rating_tutor' => 'float',
-            'comment_review' => 'string',
+            'rating_tutor' => 'required|numeric',
+            'comment_review' => 'required|string',
         ]);
 
         // validasi user_id
