@@ -28,8 +28,8 @@ class TutorController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|string',
-            'rating_mean' => 'nullable',
-            'num_customer'=>'nullable',
+            'rating_mean' => 'nullable|numeric',
+            'num_customer'=>'nullable|numeric',
         ]);
         $user_list = $this->firestoreService->getAllDocuments(); // asumsikan dari koleksi 'users'
 
@@ -74,5 +74,46 @@ class TutorController extends Controller
         return response()->json([
             'data' => $data,
         ], 201);
+    }
+
+    public function update(Request $request, string $tutor_id) {
+        try {
+            $data = $request->validate([
+                'rating_mean' => 'nullable|numeric',
+                'num_customer' => 'nullable|numeric',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id course
+        $oldData = $this->tutorServive->getDocumentById('tutor', $tutor_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'tutor tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        foreach (['rating_mean', 'num_customer'] as $field) {
+            if (isset($data[$field])) {
+                $oldDataPlain[$field] = $data[$field];
+            }
+        }
+
+        // Pastikan user_id tetap disimpan
+        $oldDataPlain['tutor_id'] = $tutor_id;
+
+        // Update dokumen di Firestore
+        $this->tutorServive->updateDocument($tutor_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'tutor berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
     }
 }
