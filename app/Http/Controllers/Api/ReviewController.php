@@ -96,4 +96,42 @@ class ReviewController extends Controller
 
         return response()->json($result);
     }
+
+    public function update(Request $request, string $review_id) {
+        try {
+            $data = $request->validate([
+                'rating_tutor' => 'nullable|numeric',
+                'comment_review'=>'nullable|string'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id schedule
+        $oldData = $this->reviewService->getDocumentById('reviews', $review_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'review id tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        foreach (['rating_tutor', 'comment_review'] as $field) {
+            if (isset($data[$field])) {
+                $oldDataPlain[$field] = $data[$field];
+            }
+        }
+        $oldDataPlain['review_id'] = $review_id;
+        //update
+        $this->reviewService->updateDocument($review_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'review berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
+    }
 }

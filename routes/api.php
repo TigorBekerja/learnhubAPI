@@ -63,6 +63,7 @@ Route::put('/kumpulanCertificate/{id}', [KumpulanCertificateController::class, '
 
 Route::get('/review', [ReviewController::class, 'index']);
 Route::post('/review', [ReviewController::class, 'store']);
+Route::put('/review/{review_id}', [ReviewController::class, 'update']);
 
 Route::get('/forum', [ForumController::class, 'index']);
 Route::post('/forum', [ForumController::class, 'store']);
