@@ -60,11 +60,45 @@ class CertificateController extends Controller
         ], 201);
     }
 
-
     public function index()
     {
         $result = $this->certificateService->getDocuments();
 
         return response()->json($result);
+    }
+
+    public function update(Request $request, string $certificate_id) {
+        try {
+            $data = $request->validate([
+                'nama' => 'required|string',
+                'mata_kuliah' => 'required | string',
+                'gambar' => 'required|url',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        $oldData = $this->certificateService->getDocumentById('certificates', $certificate_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'certificate id tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        $oldDataPlain['nama'] = $data['nama'];
+        $oldDataPlain['mata_kuliah'] = $data['mata_kuliah'];
+        $oldDataPlain['gambar'] = $data['gambar'];
+
+        $this->certificateService->updateDocument($certificate_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'certificate berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
     }
 }
