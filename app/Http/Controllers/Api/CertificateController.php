@@ -101,4 +101,29 @@ class CertificateController extends Controller
             'data' => $oldDataPlain,
         ]);
     }
+
+    public function destroy(string $certificate_id) {
+        $oldData = $this->certificateService->getDocumentById('certificates', $certificate_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'certificate id tidak ditemukan'], 404);
+        }
+
+        // line untuk menghapus seluruh kumpulan certificate dengan certificate_id yang akan dihapus
+        // Ambil semua dokumen dari kumpulanCertificates
+        $kumpulanCertificatesService = new FirestoreService('kumpulanCertificates', app(\App\Services\FirebaseTokenService::class));
+        $kumpulanCertificates = $kumpulanCertificatesService->getDocuments();
+
+        // Filter dokumen yang memiliki certificate_id yang cocok
+        foreach ($kumpulanCertificates as $item) {
+            if (isset($item['certificate_id']) && $item['certificate_id'] === $certificate_id) {
+                $kumpulanCertificatesService->deleteDocument($item['id']);
+            }
+        }
+
+        $this->certificateService->deleteDocument($certificate_id);
+        return response()->json([
+            'message' => 'certificate berhasil dihapus'
+        ], 200);
+    }
 }

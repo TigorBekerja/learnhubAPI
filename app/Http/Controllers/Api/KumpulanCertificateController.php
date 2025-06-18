@@ -120,7 +120,7 @@ class KumpulanCertificateController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, string $id) {
+    public function destroy(string $id) {
         $oldData = $this->kumpulanCertificateService->getDocumentById('kumpulanCertificates', $id);
 
         if (!$oldData) {

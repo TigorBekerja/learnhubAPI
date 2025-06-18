@@ -56,6 +56,7 @@ Route::put('/tutorCourse/{id}', [TutorCourseController::class, 'update']);
 Route::get('/certificate', [CertificateController::class, 'index']);
 Route::post('/certificate', [CertificateController::class, 'store']);
 Route::put('/certificate/{certificate_id}', [CertificateController::class, 'update']);
+Route::delete('/certificate/{certificate_id}', [CertificateController::class, 'destroy']);
 
 Route::get('/kumpulanCertificate', [KumpulanCertificateController::class, 'index']);
 Route::post('/kumpulanCertificate', [KumpulanCertificateController::class, 'store']);
