@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\UserController;
 
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
+Route::put('/users', [UserController::class, 'update']);
 
 use App\Http\Controllers\Api\FacultyController;
 Route::get('/faculties', [FacultyController::class, 'index']);

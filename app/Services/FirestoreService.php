@@ -93,7 +93,6 @@ class FirestoreService
             'fields' => $formattedData
         ],
     ]);
-
     return json_decode($response->getBody()->getContents(), true);
 }
     private function formatFields(array $data): array

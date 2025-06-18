@@ -27,15 +27,20 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-            'nama' => 'required|string',
-            'profile_picture' => 'nullable|url',
-            'bio' => 'nullable|string',
-            'prodi_id' => 'nullable|string',
-            'no_telp' => 'nullable|numeric'// numeric buat validasi harus angka
-        ]);
+        try {
+            $validated = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string|min:6',
+                'nama' => 'required|string',
+                'profile_picture' => 'nullable|url',
+                'bio' => 'nullable|string',
+                'prodi_id' => 'nullable|string',
+                'no_telp' => 'nullable|numeric'// numeric buat validasi harus angka
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+        
 
         // cek prodi id
         $prodiId = $validated['prodi_id'] ?? null;
@@ -155,5 +160,88 @@ class UserController extends Controller
 
         // Reuse store() untuk menyimpan data user
         return $this->store($request);
+    }
+
+    public function update(Request $request) {
+        try {
+            $validated = $request->validate([
+                'user_id' => 'required|string',
+                'email' => 'nullable|email',
+                'password' => 'nullable|string|min:6',
+                'nama' => 'nullable|string',
+                'profile_picture' => 'nullable|url',
+                'bio' => 'nullable|string',
+                'prodi_id' => 'nullable|string',
+                'no_telp' => 'nullable|numeric',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+        
+        $userId = $validated['user_id'];
+
+        // Ambil data user lama dari Firestore
+        $oldData = $this->firestoreService->getDocumentById('users', $userId);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        //validasi email, pastiin belum digunain di user lain
+        if (isset($validated['email'])) {
+            $emailList = $this->firestoreService->getAllDocuments();
+
+            $isEmailValid = collect($emailList)->contains(function ($item) use ($validated) {
+                return isset($item['email']) && $item['email'] === $validated['email'];
+            });
+
+            if ($isEmailValid) {
+                return response()->json(['message' => 'email sudah digunakan'], 422);
+            }
+        }
+
+        // Validasi prodi_id jika ada
+        if (isset($validated['prodi_id'])) {
+            $prodiList = $this->prodiService->getAllDocuments();
+
+            $isProdiIdValid = collect($prodiList)->contains(function ($item) use ($validated) {
+                return isset($item['prodi_id']) && $item['prodi_id'] === $validated['prodi_id'];
+            });
+
+            if (!$isProdiIdValid) {
+                return response()->json(['message' => 'prodi_id tidak ditemukan di database'], 422);
+            }
+        }
+
+        // Siapkan data yang akan diupdate (hanya jika field disediakan)
+        $updateData = $oldDataPlain;
+
+        foreach (['email', 'nama', 'profile_picture', 'bio', 'prodi_id', 'no_telp'] as $field) {
+            if (isset($validated[$field])) {
+                $updateData[$field] = $validated[$field];
+            }
+        }
+
+        // Handle password jika diupdate
+        if (isset($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        // Pastikan user_id tetap disimpan
+        $updateData['user_id'] = $userId;
+
+        // Update dokumen di Firestore
+        $this->firestoreService->updateDocument($userId, $updateData);
+
+        return response()->json([
+            'message' => 'User berhasil diupdate',
+            'data' => $updateData,
+        ]);
     }
 }
