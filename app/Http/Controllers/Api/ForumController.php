@@ -81,4 +81,46 @@ class ForumController extends Controller
 
         return response()->json($result);
     }
+
+    public function update(Request $request, string $forum_id) {
+        try {
+            $data = $request->validate([
+                'header_question' => 'nullable|string',
+                'question' => 'nullable|string'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id chat
+        $oldData = $this->forumService->getDocumentById('forums', $forum_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'forum id tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+        foreach (['header_question', 'question'] as $field) {
+            if (isset($data[$field])) {
+                $oldDataPlain[$field] = $data[$field];
+            }
+        }
+        // update date, kalau header atau question berubah
+        if (isset($data['header_question']) || isset($data['question'])) {
+            $oldDataPlain['date'] = Carbon::now()->toDateTimeString(); // buat ambil date
+        }
+        $oldDataPlain['forum_id'] = $forum_id;
+        //update
+        $this->forumService->updateDocument($forum_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'forum berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
+    }
+
 }

@@ -67,6 +67,7 @@ Route::put('/review/{review_id}', [ReviewController::class, 'update']);
 
 Route::get('/forum', [ForumController::class, 'index']);
 Route::post('/forum', [ForumController::class, 'store']);
+Route::put('/forum/{forum_id}', [ForumController::class, 'update']);
 
 Route::get('/answerForum', [AnswerForumController::class, 'index']);
 Route::post('/answerForum', [AnswerForumController::class, 'store']);
