@@ -21,7 +21,7 @@ class CourseTakenController extends Controller
 
     public function index()
     {
-        $tutor = $this->courseTakenService->getAllDocuments();
+        $tutor = $this->courseTakenService->getDocuments();
 
         return response()->json($tutor);
     }
@@ -44,24 +44,14 @@ class CourseTakenController extends Controller
             return response()->json(['message' => 'user id tidak ditemukan di database'], 422);
         }
 
-        // validasi course id
-        $course_list = $this->tutorCourseServive->getAllDocuments();
+        // validasi course dan tutor id
+        $tutorCourseList = $this->tutorCourseServive->getAllDocuments();
 
-        $isCourseIdValid = collect($course_list)->contains(function ($item) use ($validated) {
-            return isset($item['course_id']) && $item['course_id'] === $validated['course_id'];
+        $valid = collect($tutorCourseList)->contains(function ($item) use ($validated) {
+            return (isset($item['course_id']) && $item['course_id'] === $validated['course_id']) && (isset($item['tutor_id']) && $item['tutor_id'] === $validated['tutor_id']);
         });
-        if (!$isCourseIdValid) {
-            return response()->json(['message' => 'course id tidak ditemukan di database'], 422);
-        }
-
-        //validasi tutor id
-        $tutor_list = $this->tutorCourseServive->getAllDocuments();
-
-        $isTutorIdValid = collect($tutor_list)->contains(function ($item) use ($validated) {
-            return isset($item['tutor_id']) && $item['tutor_id'] === $validated['tutor_id'];
-        });
-        if (!$isTutorIdValid) {
-            return response()->json(['message' => 'tutor_id tidak ditemukan di database'], 422);
+        if (!$valid) {
+            return response()->json(['message' => 'course id dan\atau tutor id tidak ditemukan di database'], 422);
         }
 
         // simpen
@@ -74,5 +64,90 @@ class CourseTakenController extends Controller
         return response()->json([
             'data' => $result,
         ], 201);
+    }
+
+    public function update(Request $request, string $id) {
+        try {
+            $data = $request->validate([
+                'user_id' => 'nullable|string',
+                'course_id' => 'nullable|string',
+                'tutor_id' => 'nullable|string',
+            ]);
+        }catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+        
+        // validasi id schedule
+        $oldDataRaw = $this->courseTakenService->getDocumentById('course_takens', $id);
+        if (!$oldDataRaw) {
+            return response()->json(['message' => 'id tidak ditemukan'], 404);
+        }
+
+        $oldData = [];
+        foreach ($oldDataRaw as $key => $value) {
+            $oldData[$key] = $value['stringValue'] ?? null;
+        }
+
+        // assign setelah valid
+        if (isset($data['user_id'])) {
+            $userList = $this->userService->getAllDocuments();
+
+            $isUserValid = collect($userList)->contains(function ($item) use ($data) {
+                return isset($item['user_id']) && $item['user_id'] === $data['user_id'];
+            });
+
+            if (!$isUserValid) {
+                return response()->json(['message' => 'user id tidak ada di database'], 422);
+            }
+        }
+
+        // validasi course sama tutor update
+        $course_update = isset($data['course_id']);
+        $tutor_update = isset($data['tutor_id']);
+
+        if ($course_update && !$tutor_update) {
+            $tutorcourse = $this->tutorCourseServive->getAllDocuments();
+
+            $isCourseValid = collect($tutorcourse)->contains(function ($item) use ($data, $oldData) {
+                return (isset($item['course_id']) && $item['course_id'] === $data['course_id']) && (isset($item['tutor_id']) && $item['tutor_id'] === $oldData['tutor_id']);
+            });
+
+            if (!$isCourseValid) {
+                return response()->json(['message' => 'course id tidak ada di database'], 422);
+            }
+        } else if (!$course_update && $tutor_update) {
+            $tutorcourse = $this->tutorCourseServive->getAllDocuments();
+
+            $isTutorValid = collect($tutorcourse)->contains(function ($item) use ($data, $oldData) {
+                return (isset($item['course_id']) && $item['course_id'] === $oldData['course_id']) && (isset($item['tutor_id']) && $item['tutor_id'] === $data['tutor_id']);
+            });
+
+            if (!$isTutorValid) {
+                return response()->json(['message' => 'course id tidak ada di database'], 422);
+            }
+        } else if ($course_update && $tutor_update) {
+            $tutorcourse = $this->tutorCourseServive->getAllDocuments();
+
+            $isTutorCourseValid = collect($tutorcourse)->contains(function ($item) use ($data) {
+                return (isset($item['course_id']) && $item['course_id'] === $data['course_id']) && (isset($item['tutor_id']) && $item['tutor_id'] === $data['tutor_id']);
+            });
+
+            if (!$isTutorCourseValid) {
+                return response()->json(['message' => 'course id dan tutor id tidak ada di database'], 422);
+            }
+        }
+
+        foreach (['user_id', 'course_id', 'tutor_id'] as $field) {
+            if (isset($data[$field])) {
+                $oldData[$field] = $data[$field];
+            }
+        }
+
+        $this->courseTakenService->updateDocument($id, $oldData);
+
+        return response()->json([
+            'message' => 'course taken berhasil diupdate',
+            'data' => $oldData,
+        ]);
     }
 }
