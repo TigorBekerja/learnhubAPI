@@ -29,6 +29,8 @@ Route::put('/users/{user_id}', [UserController::class, 'update']);
 use App\Http\Controllers\Api\FacultyController;
 Route::get('/faculties', [FacultyController::class, 'index']);
 Route::post('/faculties', [FacultyController::class, 'store']);
+Route::put('/faculties/{faculty_id}', [FacultyController::class, 'update']);
+
 
 use App\Http\Controllers\Api\ProdiController;
 

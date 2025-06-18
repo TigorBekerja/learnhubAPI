@@ -21,11 +21,22 @@ class FacultyController extends Controller
             'nama' => 'required|string',
         ]);
 
+        if (isset($validated['nama'])) {
+            $facultyList = $this->facultyService->getAllDocuments();
+
+            $isFacultyValid = collect($facultyList)->contains(function ($item) use ($validated) {
+                return isset($item['nama']) && $item['nama'] === $validated['nama'];
+            });
+
+            if ($isFacultyValid) {
+                return response()->json(['message' => 'nama sudah ada di database'], 422);
+            }
+        }
+
         // 1. Simpan dokumen tanpa faculty_id
         $result = $this->facultyService->createDocument([
             'nama' => $validated['nama']
         ]);
-
         // 2. Ambil ID dokumen dari response Firestore
         $docName = $result['name'];
         $parts = explode('/', $docName);
@@ -64,7 +75,45 @@ class FacultyController extends Controller
         return response()->json($result);
     }
 
-    public function update(Request $request) {
-        
+    public function update(Request $request, string $faculty_id) {
+        try {
+            $validated = $request->validate([
+                'nama' => 'required|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        $oldData = $this->facultyService->getDocumentById('faculties', $faculty_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'fakultas tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        if (isset($validated['nama'])) {
+            $facultyList = $this->facultyService->getAllDocuments();
+
+            $isFacultyValid = collect($facultyList)->contains(function ($item) use ($validated) {
+                return isset($item['nama']) && $item['nama'] === $validated['nama'];
+            });
+
+            if ($isFacultyValid) {
+                return response()->json(['message' => 'nama sudah ada di database'], 422);
+            }
+        }
+
+        $oldDataPlain['nama'] = $validated['nama'];
+        $oldDataPlain['faculty_id'] = $faculty_id;
+        $this->facultyService->updateDocument($faculty_id, $oldDataPlain);
+        return response()->json([
+            'message' => 'fakultas berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
     }
 }
