@@ -107,7 +107,7 @@ class ReviewController extends Controller
             return $th->validator->errors();
         }
 
-        // validasi id schedule
+        // validasi id review
         $oldData = $this->reviewService->getDocumentById('reviews', $review_id);
 
         if (!$oldData) {

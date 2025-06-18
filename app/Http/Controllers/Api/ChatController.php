@@ -104,4 +104,38 @@ class ChatController extends Controller
 
         return response()->json($result);
     }
+
+    public function update(Request $request, string $chat_id) {
+        try {
+            $data = $request->validate([
+                'text' => 'required|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id chat
+        $oldData = $this->chatService->getDocumentById('chats', $chat_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'chat id tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        $oldDataPlain['text'] = $data['text'];
+        $oldDataPlain['date'] = Carbon::now()->toDateTimeString(); // buat ambil date
+        $oldDataPlain['chat_id'] = $chat_id;
+        //update
+        $this->chatService->updateDocument($chat_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'chat berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
+    }
 }
