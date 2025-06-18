@@ -176,61 +176,21 @@ class FirestoreService
             return null;
         }
     }
-    public function getDocumentsByConditions(string $collection, array $conditions): array
+            public function deleteDocument(string $documentId): bool
     {
-        $filters = [];
+        $url = "{$this->collection}/{$documentId}";
 
-        foreach ($conditions as $field => $value) {
-            $filters[] = [
-                'fieldFilter' => [
-                    'field' => ['fieldPath' => $field],
-                    'op' => 'EQUAL',
-                    'value' => ['stringValue' => $value]
-                ]
-            ];
-        }
-
-        $body = [
-            'structuredQuery' => [
-                'from' => [['collectionId' => $collection]],
-                'where' => [
-                    'compositeFilter' => [
-                        'op' => 'AND',
-                        'filters' => $filters
-                    ]
-                ]
-            ]
-        ];
-
-        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents:runQuery";
-
-        $response = $this->http->post($url, [
+        $response = $this->http->delete($url, [
             'headers' => [
                 'Authorization' => "Bearer {$this->accessToken}",
-                'Content-Type' => 'application/json',
             ],
-            'json' => $body,
         ]);
 
-        $results = json_decode($response->getBody()->getContents(), true);
-
-        $documents = [];
-
-        foreach ($results as $result) {
-            if (isset($result['document'])) {
-                $doc = $result['document'];
-                $parsed = ['id' => basename($doc['name'])];
-
-                foreach ($doc['fields'] as $key => $value) {
-                    $parsed[$key] = $value[array_key_first($value)] ?? null;
-                }
-
-                $documents[] = $parsed;
-            }
-        }
-
-        return $documents;
+        return $response->getStatusCode() === 200;
     }
+
+
+
     public function setCollection(string $collection)
     {
         $this->collection = $collection;

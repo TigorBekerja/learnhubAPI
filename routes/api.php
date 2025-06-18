@@ -60,6 +60,7 @@ Route::put('/certificate/{certificate_id}', [CertificateController::class, 'upda
 Route::get('/kumpulanCertificate', [KumpulanCertificateController::class, 'index']);
 Route::post('/kumpulanCertificate', [KumpulanCertificateController::class, 'store']);
 Route::put('/kumpulanCertificate/{id}', [KumpulanCertificateController::class, 'update']);
+Route::delete('/kumpulanCertificate/{id}', [KumpulanCertificateController::class, 'destroy']);
 
 Route::get('/review', [ReviewController::class, 'index']);
 Route::post('/review', [ReviewController::class, 'store']);

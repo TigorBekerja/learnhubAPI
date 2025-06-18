@@ -119,4 +119,18 @@ class KumpulanCertificateController extends Controller
             'data' => $oldDataPlain,
         ]);
     }
+
+    public function destroy(Request $request, string $id) {
+        $oldData = $this->kumpulanCertificateService->getDocumentById('kumpulanCertificates', $id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'kumpulan certificate id tidak ditemukan'], 404);
+        }
+
+        $this->kumpulanCertificateService->deleteDocument($id);
+        
+        return response()->json([
+            'message' => 'kumpulan certificate berhasil dihapus'
+        ], 200);
+    }
 }
