@@ -138,4 +138,17 @@ class ChatController extends Controller
             'data' => $oldDataPlain,
         ]);
     }
+
+    public function destroy(string $chat_id) {
+        $oldData = $this->chatService->getDocumentById('chats', $chat_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'chat id tidak ditemukan'], 404);
+        }
+
+        $this->chatService->deleteDocument($chat_id);
+        return response()->json([
+            'message' => 'chat berhasil dihapus'
+        ], 200);
+    }
 }

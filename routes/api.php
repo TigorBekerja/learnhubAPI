@@ -89,3 +89,4 @@ Route::put('/schedule/{schedule_id}', [ScheduleController::class, 'update']);
 Route::get('/chat', [ChatController::class, 'index']);
 Route::post('/chat', [ChatController::class, 'store']);
 Route::put('/chat/{chat_id}', [ChatController::class, 'update']);
+Route::delete('/chat/{chat_id}', [ChatController::class, 'destroy']);
