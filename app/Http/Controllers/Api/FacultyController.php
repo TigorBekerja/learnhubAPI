@@ -63,4 +63,8 @@ class FacultyController extends Controller
 
         return response()->json($result);
     }
+
+    public function update(Request $request) {
+        
+    }
 }

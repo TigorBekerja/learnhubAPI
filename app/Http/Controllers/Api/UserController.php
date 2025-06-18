@@ -162,10 +162,9 @@ class UserController extends Controller
         return $this->store($request);
     }
 
-    public function update(Request $request) {
+    public function update(Request $request, string $user_id) {
         try {
             $validated = $request->validate([
-                'user_id' => 'required|string',
                 'email' => 'nullable|email',
                 'password' => 'nullable|string|min:6',
                 'nama' => 'nullable|string',
@@ -178,10 +177,9 @@ class UserController extends Controller
             return $th->validator->errors();
         }
         
-        $userId = $validated['user_id'];
 
         // Ambil data user lama dari Firestore
-        $oldData = $this->firestoreService->getDocumentById('users', $userId);
+        $oldData = $this->firestoreService->getDocumentById('users', $user_id);
 
         if (!$oldData) {
             return response()->json(['message' => 'User tidak ditemukan'], 404);
@@ -234,10 +232,10 @@ class UserController extends Controller
         }
 
         // Pastikan user_id tetap disimpan
-        $updateData['user_id'] = $userId;
+        $updateData['user_id'] = $user_id;
 
         // Update dokumen di Firestore
-        $this->firestoreService->updateDocument($userId, $updateData);
+        $this->firestoreService->updateDocument($user_id, $updateData);
 
         return response()->json([
             'message' => 'User berhasil diupdate',
