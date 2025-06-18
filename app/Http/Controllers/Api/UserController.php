@@ -33,13 +33,14 @@ class UserController extends Controller
             'nama' => 'required|string',
             'profile_picture' => 'nullable|url',
             'bio' => 'nullable|string',
-            'prodi_id' => 'nullable|string'
+            'prodi_id' => 'nullable|string',
+            'no_telp' => 'nullable|numeric'// numeric buat validasi harus angka
         ]);
 
         // cek prodi id
         $prodiId = $validated['prodi_id'] ?? null;
         if ($prodiId != null) {
-            $prodiList = $this->prodiService->getAllDocuments(); // asumsikan dari koleksi 'prodi'
+            $prodiList = $this->prodiService->getAllDocuments();
 
             $isProdiIdValid = collect($prodiList)->contains(function ($item) use ($validated) {
                 return isset($item['prodi_id']) && $item['prodi_id'] === $validated['prodi_id'];
@@ -59,6 +60,7 @@ class UserController extends Controller
             'profile_picture' => $validated['profile_picture'] ?? null,
             'bio' => $validated['bio'] ?? null,
             'prodi_id' => $validated['prodi_id'] ?? null,
+            'no_telp'=>$validated['no_telp'] ?? null,
         ]);
 
         // 2. Ambil ID dokumen dari response Firestore
