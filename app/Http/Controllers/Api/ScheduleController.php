@@ -21,11 +21,17 @@ class ScheduleController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'user_id' => 'required|string',
-            'tutor_id'=>'required|string',
-            'course_id' => 'required|string',
-        ]);
+        try {
+            $data = $request->validate([
+                'user_id' => 'required|string',
+                'tutor_id'=>'required|string',
+                'course_id' => 'required|string',
+                'date' => 'required|date_format:d-m-Y H:i:s'
+            ]);
+        }catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+        
 
         // validasi user_id
         $userList = $this->userService->getAllDocuments(); 
@@ -65,7 +71,7 @@ class ScheduleController extends Controller
             'user_id' => $data['user_id'],
             'tutor_id' => $data['tutor_id'],
             'course_id' => $data['course_id'],
-            'date'=> Carbon::now()->toDateTimeString(), // buat ambil date
+            'date'=> $data['date']
         ]);
 
         // 2. Ambil ID dokumen dari response Firestore
@@ -105,4 +111,40 @@ class ScheduleController extends Controller
 
         return response()->json($result);
     }
+
+    public function update(Request $request, string $schedule_id) {
+        // cuma ganti date
+        try {
+            $data = $request->validate([
+                'date' => 'required|date_format:d-m-Y H:i:s'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id schedule
+        $oldData = $this->scheduleService->getDocumentById('schedules', $schedule_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'schedule id tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        $oldDataPlain['schedule_id'] = $schedule_id;
+        $oldDataPlain['date'] = $data['date'];
+        
+        //update
+        $this->scheduleService->updateDocument($schedule_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'schedule berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
+    }
+
 }
