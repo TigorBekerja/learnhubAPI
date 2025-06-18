@@ -84,18 +84,14 @@ class FacultyController extends Controller
             return $th->validator->errors();
         }
 
+        // validasi id fakultas
         $oldData = $this->facultyService->getDocumentById('faculties', $faculty_id);
 
         if (!$oldData) {
             return response()->json(['message' => 'fakultas tidak ditemukan'], 404);
         }
 
-        // Ambil nilai asli dari dokumen Firestore
-        $oldDataPlain = [];
-        foreach ($oldData as $key => $value) {
-            $oldDataPlain[$key] = $value['stringValue'] ?? null;
-        }
-
+        // validasi nama
         if (isset($validated['nama'])) {
             $facultyList = $this->facultyService->getAllDocuments();
 
@@ -106,6 +102,12 @@ class FacultyController extends Controller
             if ($isFacultyValid) {
                 return response()->json(['message' => 'nama sudah ada di database'], 422);
             }
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
         }
 
         $oldDataPlain['nama'] = $validated['nama'];

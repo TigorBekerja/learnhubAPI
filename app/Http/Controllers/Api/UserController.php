@@ -176,19 +176,12 @@ class UserController extends Controller
         } catch (\Illuminate\Validation\ValidationException $th) {
             return $th->validator->errors();
         }
-        
 
         // Ambil data user lama dari Firestore
         $oldData = $this->firestoreService->getDocumentById('users', $user_id);
 
         if (!$oldData) {
             return response()->json(['message' => 'User tidak ditemukan'], 404);
-        }
-
-        // Ambil nilai asli dari dokumen Firestore
-        $oldDataPlain = [];
-        foreach ($oldData as $key => $value) {
-            $oldDataPlain[$key] = $value['stringValue'] ?? null;
         }
 
         //validasi email, pastiin belum digunain di user lain
@@ -215,6 +208,12 @@ class UserController extends Controller
             if (!$isProdiIdValid) {
                 return response()->json(['message' => 'prodi_id tidak ditemukan di database'], 422);
             }
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
         }
 
         // Siapkan data yang akan diupdate (hanya jika field disediakan)

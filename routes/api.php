@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\ProdiController;
 
 Route::post('/prodis', [ProdiController::class, 'store']);
 Route::get('/prodis', [ProdiController::class, 'index']);
+Route::put('/prodis/{prodi_id}', [ProdiController::class, 'update']);
 
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
