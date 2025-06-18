@@ -134,4 +134,17 @@ class ReviewController extends Controller
             'data' => $oldDataPlain,
         ]);
     }
+
+    public function destroy(string $review_id) {
+        $oldData = $this->reviewService->getDocumentById('reviews', $review_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'review id tidak ditemukan'], 404);
+        }
+
+        $this->reviewService->deleteDocument($review_id);
+        return response()->json([
+            'message' => 'review berhasil dihapus'
+        ], 200);
+    }
 }

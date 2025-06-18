@@ -66,6 +66,7 @@ Route::delete('/kumpulanCertificate/{id}', [KumpulanCertificateController::class
 Route::get('/review', [ReviewController::class, 'index']);
 Route::post('/review', [ReviewController::class, 'store']);
 Route::put('/review/{review_id}', [ReviewController::class, 'update']);
+Route::delete('/review/{review_id}', [ReviewController::class, 'destroy']);
 
 Route::get('/forum', [ForumController::class, 'index']);
 Route::post('/forum', [ForumController::class, 'store']);
