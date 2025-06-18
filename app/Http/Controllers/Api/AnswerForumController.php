@@ -136,4 +136,17 @@ class AnswerForumController extends Controller
             'data' => $oldDataPlain,
         ]);
     }
+
+    public function destroy(string $answer_id) {
+        $oldData = $this->answerService->getDocumentById('answer_forums', $answer_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'answer id tidak ditemukan'], 404);
+        }
+
+        $this->answerService->deleteDocument($answer_id);
+        return response()->json([
+            'message' => 'answer berhasil dihapus'
+        ], 200);
+    }
 }
