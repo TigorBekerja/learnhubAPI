@@ -25,7 +25,6 @@ class AnswerForumController extends Controller
             'user_id' => 'required|string',
             'answer' => 'required|string',
         ]);
-
         // validasi user id
         $userList = $this->userService->getAllDocuments(); 
 
@@ -53,8 +52,8 @@ class AnswerForumController extends Controller
             'forum_id' => $data['forum_id'],
             'user_id' => $data['user_id'],
             'answer' => $data['answer'],
-            'like'=> 0, //null for some kind of reason
-            'dislike'=> 0, //null for some kind of reason
+            'like'=> "0", //null for some kind of reason
+            'dislike'=> "0", //null for some kind of reason
             'date'=> Carbon::now()->toDateTimeString(), // buat ambil date
         ]);
 
@@ -94,5 +93,47 @@ class AnswerForumController extends Controller
         $result = $this->answerService->getDocuments();
 
         return response()->json($result);
+    }
+
+    public function update(Request $request, string $answer_id) {
+        try {
+            $data = $request->validate([
+                'answer' => 'nullable|string',
+                'like' => 'nullable|numeric',
+                'dislike' => 'nullable|numeric'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id answer
+        $oldData = $this->forumService->getDocumentById('answer_forums', $answer_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'answer id tidak ditemukan'], 404);
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+        foreach (['answer', 'like', 'dislike'] as $field) {
+            if (isset($data[$field])) {
+                $oldDataPlain[$field] = $data[$field];
+            }
+        }
+
+        // update date, kalau answer berubah
+        if (isset($data['answer'])) {
+            $oldDataPlain['date'] = Carbon::now()->toDateTimeString(); // buat ambil date
+        }
+        $oldDataPlain['answer_id'] = $answer_id;
+        $this->answerService->updateDocument($answer_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'answer berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
     }
 }

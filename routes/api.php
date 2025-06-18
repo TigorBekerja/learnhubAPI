@@ -71,6 +71,7 @@ Route::put('/forum/{forum_id}', [ForumController::class, 'update']);
 
 Route::get('/answerForum', [AnswerForumController::class, 'index']);
 Route::post('/answerForum', [AnswerForumController::class, 'store']);
+Route::put('/answerForum/{answer_id}', [AnswerForumController::class, 'update']);
 
 Route::get('/courseTaken', [CourseTakenController::class, 'index']);
 Route::post('/courseTaken', [CourseTakenController::class, 'store']);

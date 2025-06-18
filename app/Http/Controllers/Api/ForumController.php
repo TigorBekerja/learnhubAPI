@@ -92,7 +92,7 @@ class ForumController extends Controller
             return $th->validator->errors();
         }
 
-        // validasi id chat
+        // validasi id forum
         $oldData = $this->forumService->getDocumentById('forums', $forum_id);
 
         if (!$oldData) {
