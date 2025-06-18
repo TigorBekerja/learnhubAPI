@@ -79,7 +79,7 @@ class ProdiController extends Controller
         return response()->json($result);
     }
 
-    public function update(Request $request, string $prodiId) {
+    public function update(Request $request, string $prodi_id) {
         try {
             $data = $request->validate([
                 'faculty_id' => 'nullable|string',
@@ -90,7 +90,7 @@ class ProdiController extends Controller
         }
 
         // validasi id prodi
-        $oldData = $this->prodiService->getDocumentById('prodi', $prodiId);
+        $oldData = $this->prodiService->getDocumentById('prodi', $prodi_id);
 
         if (!$oldData) {
             return response()->json(['message' => 'prodi tidak ditemukan'], 404);
@@ -139,10 +139,10 @@ class ProdiController extends Controller
         //$oldDataPlain['nama'] = $data['nama'];
 
         // Pastikan user_id tetap disimpan
-        $oldDataPlain['prodi_id'] = $prodiId;
+        $oldDataPlain['prodi_id'] = $prodi_id;
 
         // Update dokumen di Firestore
-        $this->prodiService->updateDocument($prodiId, $oldDataPlain);
+        $this->prodiService->updateDocument($prodi_id, $oldDataPlain);
 
         return response()->json([
             'message' => 'prodi berhasil diupdate',

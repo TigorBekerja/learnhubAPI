@@ -25,6 +25,8 @@ use App\Http\Controllers\Api\UserController;
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user_id}', [UserController::class, 'update']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/register', [UserController::class, 'register']);
 
 use App\Http\Controllers\Api\FacultyController;
 Route::get('/faculties', [FacultyController::class, 'index']);
@@ -38,11 +40,9 @@ Route::post('/prodis', [ProdiController::class, 'store']);
 Route::get('/prodis', [ProdiController::class, 'index']);
 Route::put('/prodis/{prodi_id}', [ProdiController::class, 'update']);
 
-Route::post('/login', [UserController::class, 'login']);
-Route::post('/register', [UserController::class, 'register']);
-
 Route::post('/course', [CourseController::class, 'store']);
 Route::get('/course', [CourseController::class, 'index']);
+Route::put('/course/{course_id}', [CourseController::class, 'update']);
 
 Route::get('/tutor', [TutorController::class, 'index']);
 Route::post('/tutor', [TutorController::class, 'store']);

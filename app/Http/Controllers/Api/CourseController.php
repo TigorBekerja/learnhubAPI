@@ -74,4 +74,71 @@ class CourseController extends Controller
 
         return response()->json($result);
     }
+
+    public function update(Request $request, string $course_id) {
+        try {
+            $data = $request->validate([
+                'nama' => 'nullable|string',
+                'prodi_id' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return $th->validator->errors();
+        }
+
+        // validasi id course
+        $oldData = $this->courseService->getDocumentById('course', $course_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'course tidak ditemukan'], 404);
+        }
+
+        // validasi id fakultas baru, kalau ada
+        if (isset($data['prodi_id'])) {
+            $prodiList = $this->prodiService->getAllDocuments();
+
+            $isprodiValid = collect($prodiList)->contains(function ($item) use ($data) {
+                return isset($item['prodi_id']) && $item['prodi_id'] === $data['prodi_id'];
+            });
+
+            if (!$isprodiValid) {
+                return response()->json(['message' => 'prodi id tidak ada di database'], 422);
+            }
+        }
+
+        // validasi nama course, ga boleh ada nama yang sama
+        if (isset($data['nama'])) {
+            $courseList = $this->courseService->getAllDocuments();
+
+            $iscourseValid = collect($courseList)->contains(function ($item) use ($data) {
+                return isset($item['nama']) && $item['nama'] === $data['nama'];
+            });
+
+            if ($iscourseValid) {
+                return response()->json(['message' => 'nama sudah ada di database'], 422);
+            }
+        }
+
+        // Ambil nilai asli dari dokumen Firestore
+        $oldDataPlain = [];
+        foreach ($oldData as $key => $value) {
+            $oldDataPlain[$key] = $value['stringValue'] ?? null;
+        }
+
+        foreach (['nama', 'prodi_id'] as $field) {
+            if (isset($data[$field])) {
+                $oldDataPlain[$field] = $data[$field];
+            }
+        }
+
+        // Pastikan user_id tetap disimpan
+        $oldDataPlain['course_id'] = $course_id;
+
+        // Update dokumen di Firestore
+        $this->courseService->updateDocument($course_id, $oldDataPlain);
+
+        return response()->json([
+            'message' => 'course berhasil diupdate',
+            'data' => $oldDataPlain,
+        ]);
+    }
 }
