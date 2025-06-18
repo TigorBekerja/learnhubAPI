@@ -150,4 +150,17 @@ class CourseTakenController extends Controller
             'data' => $oldData,
         ]);
     }
+
+    public function destroy(string $id) {
+        $oldData = $this->courseTakenService->getDocumentById('course_takens', $id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'course taken id tidak ditemukan'], 404);
+        }
+
+        $this->courseTakenService->deleteDocument($id);
+        return response()->json([
+            'message' => 'course taken berhasil dihapus'
+        ], 200);
+    }
 }
