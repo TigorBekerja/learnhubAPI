@@ -147,4 +147,16 @@ class ScheduleController extends Controller
         ]);
     }
 
+    public function destroy(string $schedule_id) {
+        $oldData = $this->scheduleService->getDocumentById('schedules', $schedule_id);
+
+        if (!$oldData) {
+            return response()->json(['message' => 'schedule id tidak ditemukan'], 404);
+        }
+
+        $this->scheduleService->deleteDocument($schedule_id);
+        return response()->json([
+            'message' => 'schedule berhasil dihapus'
+        ], 200);
+    }
 }

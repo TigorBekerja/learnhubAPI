@@ -86,6 +86,7 @@ Route::delete('/courseTaken/{id}', [CourseTakenController::class, 'destroy']);
 Route::get('/schedule', [ScheduleController::class, 'index']);
 Route::post('/schedule', [ScheduleController::class, 'store']);
 Route::put('/schedule/{schedule_id}', [ScheduleController::class, 'update']);
+Route::delete('/schedule/{schedule_id}', [ScheduleController::class, 'destroy']);
 
 Route::get('/chat', [ChatController::class, 'index']);
 Route::post('/chat', [ChatController::class, 'store']);
